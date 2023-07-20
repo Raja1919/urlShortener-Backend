@@ -28,7 +28,7 @@ routes.post("/create", async (req, res) => {
 
   await newUrl.save();
 
-  res.json({ shortUrl });
+  res.json({ data:shortUrl });
 });
 
 routes.get("/:shortUrl", async (req, res) => {
@@ -39,11 +39,12 @@ routes.get("/:shortUrl", async (req, res) => {
       { shortUrl },
       { $inc: { count: 1 } }
     );
+    console.log('originalUrl',url.originalUrl)
     if (!url) {
       return res.status(404).json({ error: "URL not found" });
     }
 
-    return res.redirect(url.originalUrl);
+    return res.json(url.originalUrl);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
