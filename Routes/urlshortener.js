@@ -51,4 +51,48 @@ routes.get("/:shortUrl", async (req, res) => {
   }
 });
 
+routes.get("/counts/day", async (req, res) => {
+  try {
+    const data = await UrlModel.find();
+    console.log(data)
+    const counts = {};
+
+    data.map((item) => {
+      const createdAtDate = new Date(item.createdAt).toISOString().slice(0, 10);
+      if (counts[createdAtDate]) {
+        counts[createdAtDate]++;
+      } else {
+        counts[createdAtDate] = 1;
+      }
+    });
+
+    res.json(counts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+routes.get("/counts/month", async (req, res) => {
+  try {
+    const data = await UrlModel.find();
+    const counts = {};
+
+    data.map((item) => {
+      const createdAtMonth = new Date(item.createdAt).toISOString().slice(0, 7);
+      if (counts[createdAtMonth]) {
+        counts[createdAtMonth]++;
+      } else {
+        counts[createdAtMonth] = 1;
+      }
+    });
+
+    res.json(counts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 module.exports = routes;
