@@ -28,7 +28,7 @@ routes.post("/create", async (req, res) => {
 
   await newUrl.save();
 
-  res.json({ data:shortUrl });
+  res.json({ data: shortUrl });
 });
 
 routes.get("/:shortUrl", async (req, res) => {
@@ -39,7 +39,7 @@ routes.get("/:shortUrl", async (req, res) => {
       { shortUrl },
       { $inc: { count: 1 } }
     );
-    console.log('originalUrl',url.originalUrl)
+    console.log("originalUrl", url.originalUrl);
     if (!url) {
       return res.status(404).json({ error: "URL not found" });
     }
@@ -50,6 +50,7 @@ routes.get("/:shortUrl", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 routes.get("/counts/day", async (req, res) => {
   try {
     const data = await UrlModel.find();
@@ -77,8 +78,37 @@ routes.get("/counts/day", async (req, res) => {
   }
 });
 
+routes.get("/counts/month", async (req, res) => {
+  try {
+    const data = await UrlModel.find();
+    console.log(data);
+    const counts = {};
 
+    data.map((item) => {
+      const createdAtDate = new Date(item.createdAt);
+      const yearMonth = `${createdAtDate.getFullYear()}-${(
+        createdAtDate.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}`;
 
+      if (counts[yearMonth]) {
+        counts[yearMonth]++;
+      } else {
+        counts[yearMonth] = 1;
+      }
+    });
 
+    const countsArray = Object.keys(counts).map((yearMonth) => ({
+      yearMonth: yearMonth,
+      count: counts[yearMonth],
+    }));
+
+    res.json(countsArray);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 module.exports = routes;
